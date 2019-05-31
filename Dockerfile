@@ -9,5 +9,6 @@ RUN make -v
 
 RUN npm install node-gyp
 RUN npm i
-COPY app.js .
-CMD ["node", "app.js"]
+COPY /src ./src
+RUN ls -la
+CMD ["node", "src/app.js"]
