@@ -4,7 +4,12 @@ const UbiMqtt = require("ubimqtt");
 const netInfo = require('os').networkInterfaces();
 console.log(netInfo);
 
-let mqtt = new UbiMqtt("mqtt://localhost:1883");
+require('dotenv').config();
+
+//let mqtt = new UbiMqtt("mqtt://localhost:1883");
+//console.log(process.env);
+let mqtt = new UbiMqtt("mqtt://" + process.env.mqttUrl)
+
 let scanner = new BeaconScanner();
 let observations = new Map();
 
