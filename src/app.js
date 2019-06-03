@@ -18,7 +18,6 @@ scanner.onadvertisement = (ad) => {
 	    return;
     }
 
-    let formatted = { beaconId: ad.iBeacon.uuid, raspId: process.env.raspId, volume: ad.rssi }; 
 
     const beaconId = ad.iBeacon.uuid;
     const rssi = ad.rssi;
@@ -30,7 +29,10 @@ scanner.onadvertisement = (ad) => {
         beacons.set(beaconId, beacon);
     }
 
+
     beacon.addObservation(rssi);
+    let formatted = { beaconId: ad.iBeacon.uuid, raspId: process.env.raspId, volume: beacon.average() }; 
+
     publish("ohtu/test", JSON.stringify(formatted));
     console.log("average", beacon.average());
 }
