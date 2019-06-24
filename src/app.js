@@ -31,7 +31,7 @@ scanner.onadvertisement = (ad) => {
 
 
     beacon.addObservation(rssi);
-    let formatted = { beaconId: ad.iBeacon.uuid, raspId: process.env.raspId, volume: beacon.average() }; 
+    let formatted = { beaconId: ad.iBeacon.uuid, raspId: process.env.raspId, rssi: beacon.average() }; 
 
     publish("ohtu/test", JSON.stringify(formatted));
     console.log("average", beacon.average());
