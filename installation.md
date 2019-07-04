@@ -76,7 +76,7 @@ ExecStart=/usr/sbin/bluetoothd --experimental
 
 In the new shell:
 
-`> advertise on`
+`> advertise on` (leave the shell open)
 
 ### GATT server
 
@@ -84,6 +84,6 @@ In the new shell:
 
 Install python dependencies: `python3 -m pip install --user requirements.txt`
 
-Start the server: `python3 example-gatt-server.py`
+Start the server: `python3 echo_gatt_server.py`
 
 Server should be now ready to accept new web bluetooth connections.

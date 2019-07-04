@@ -30,16 +30,6 @@ class InvalidArgsException(dbus.exceptions.DBusException):
 class NotSupportedException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.bluez.Error.NotSupported'
 
-class NotPermittedException(dbus.exceptions.DBusException):
-    _dbus_error_name = 'org.bluez.Error.NotPermitted'
-
-class InvalidValueLengthException(dbus.exceptions.DBusException):
-    _dbus_error_name = 'org.bluez.Error.InvalidValueLength'
-
-class FailedException(dbus.exceptions.DBusException):
-    _dbus_error_name = 'org.bluez.Error.Failed'
-
-
 class Application(dbus.service.Object):
     """
     org.bluez.GattApplication1 interface implementation
@@ -48,7 +38,7 @@ class Application(dbus.service.Object):
         self.path = '/'
         self.services = []
         dbus.service.Object.__init__(self, bus, self.path)
-        self.add_service(HeartRateService(bus, 0))
+        self.add_service(DeviceInfoService(bus, 0))
 
     def get_path(self):
         return dbus.ObjectPath(self.path)
@@ -172,32 +162,6 @@ class Characteristic(dbus.service.Object):
 
         return self.get_properties()[GATT_CHRC_IFACE]
 
-    @dbus.service.method(GATT_CHRC_IFACE,
-                        in_signature='a{sv}',
-                        out_signature='ay')
-    def ReadValue(self, options):
-        print('Default ReadValue called, returning error')
-        raise NotSupportedException()
-
-    @dbus.service.method(GATT_CHRC_IFACE, in_signature='aya{sv}')
-    def WriteValue(self, value, options):
-        print('Default WriteValue called, returning error')
-        raise NotSupportedException()
-
-    @dbus.service.method(GATT_CHRC_IFACE)
-    def StartNotify(self):
-        print('Default StartNotify called, returning error')
-        raise NotSupportedException()
-
-    @dbus.service.method(GATT_CHRC_IFACE)
-    def StopNotify(self):
-        print('Default StopNotify called, returning error')
-        raise NotSupportedException()
-
-    @dbus.service.signal(DBUS_PROP_IFACE,
-                         signature='sa{sv}as')
-    def PropertiesChanged(self, interface, changed, invalidated):
-        pass
 
 
 class Descriptor(dbus.service.Object):
@@ -246,22 +210,16 @@ class Descriptor(dbus.service.Object):
         raise NotSupportedException()
 
 
-class HeartRateService(Service):
-    """
-    Fake Heart Rate Service that simulates a fake heart beat and control point
-    behavior.
-
-    """
-    HR_UUID = '0000180d-0000-1000-8000-00805f9b34fb'
+class DeviceInfoService(Service):
+    HR_UUID = '0000180a-0000-1000-8000-00805f9b34fb'
 
     def __init__(self, bus, index):
         Service.__init__(self, bus, index, self.HR_UUID, True)
-        self.add_characteristic(HeartRateControlPointChrc(bus, 2, self))
-        self.energy_expended = 0
+        self.add_characteristic(DeviceNameChar(bus, 2, self))
 
 
-class HeartRateControlPointChrc(Characteristic):
-    HR_CTRL_PT_UUID = '00002a39-0000-1000-8000-00805f9b34fb'
+class DeviceNameChar(Characteristic):
+    HR_CTRL_PT_UUID = '00002a00-0000-1000-8000-00805f9b34fb'
 
     def __init__(self, bus, index, service):
         Characteristic.__init__(
@@ -272,33 +230,11 @@ class HeartRateControlPointChrc(Characteristic):
         self.add_descriptor(
             CharacteristicUserDescriptionDescriptor(bus, 0, self))
 
-    def WriteValue(self, value, options):
-        print('Heart Rate Control Point WriteValue called')
-
-        if len(value) != 1:
-            raise InvalidValueLengthException()
-
-        byte = value[0]
-        print('Control Point value: ' + repr(byte))
-
-        if byte != 1:
-            raise FailedException("0x80")
-
-        print('Energy Expended field reset!')
-        self.service.energy_expended = 0
-
-
 class CharacteristicUserDescriptionDescriptor(Descriptor):
-    """
-    Writable CUD descriptor.
-
-    """
     CUD_UUID = '2901'
 
     def __init__(self, bus, index, characteristic):
         self.writable = 'writable-auxiliaries' in characteristic.flags
-        self.value = array.array('B', b'This is a characteristic for testing')
-        self.value = self.value.tolist()
         Descriptor.__init__(
                 self, bus, index,
                 self.CUD_UUID,
@@ -306,12 +242,10 @@ class CharacteristicUserDescriptionDescriptor(Descriptor):
                 characteristic)
 
     def ReadValue(self, options):
-        return array.array('B', current_bt_device().encode())
+        name = current_bt_device()
+        print('reporting device as "{}"'.format(name))
 
-    def WriteValue(self, value, options):
-        if not self.writable:
-            raise NotPermittedException()
-        self.value = value
+        return array.array('B', name.encode())
 
 def register_app_cb():
     print('GATT application registered')

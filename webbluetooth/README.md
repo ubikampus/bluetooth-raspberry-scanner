@@ -4,9 +4,9 @@ See installation.md for server setup.
 
 Client example for fetching device bluetooth name: https://googlechrome.github.io/samples/web-bluetooth/write-descriptor-async-await.html
 
-bluetooth service: heart_rate
+bluetooth service: device_info
 
-bluetooth characteristic: heart_rate_control_point
+bluetooth characteristic: gap.device_name
 
 Select correct peripheral server server and submit, device name should be
 visible in the demo output.
