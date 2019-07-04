@@ -11,7 +11,7 @@ try:
 except ImportError:
     import gobject as GObject
 
-from bluetooth_hacks import current_bt_device
+from webbluetooth.bluetooth_hacks import current_bt_device
 
 mainloop = None
 
@@ -24,11 +24,14 @@ GATT_SERVICE_IFACE = 'org.bluez.GattService1'
 GATT_CHRC_IFACE =    'org.bluez.GattCharacteristic1'
 GATT_DESC_IFACE =    'org.bluez.GattDescriptor1'
 
+
 class InvalidArgsException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
 
+
 class NotSupportedException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.bluez.Error.NotSupported'
+
 
 class Application(dbus.service.Object):
     """
@@ -163,7 +166,6 @@ class Characteristic(dbus.service.Object):
         return self.get_properties()[GATT_CHRC_IFACE]
 
 
-
 class Descriptor(dbus.service.Object):
     """
     org.bluez.GattDescriptor1 interface implementation
@@ -228,9 +230,10 @@ class DeviceNameChar(Characteristic):
                 ['write'],
                 service)
         self.add_descriptor(
-            CharacteristicUserDescriptionDescriptor(bus, 0, self))
+            UserDescriptionDescriptor(bus, 0, self))
 
-class CharacteristicUserDescriptionDescriptor(Descriptor):
+
+class UserDescriptionDescriptor(Descriptor):
     CUD_UUID = '2901'
 
     def __init__(self, bus, index, characteristic):
@@ -246,6 +249,7 @@ class CharacteristicUserDescriptionDescriptor(Descriptor):
         print('reporting device as "{}"'.format(name))
 
         return array.array('B', name.encode())
+
 
 def register_app_cb():
     print('GATT application registered')
@@ -266,6 +270,7 @@ def find_adapter(bus):
             return o
 
     return None
+
 
 def main():
     global mainloop
@@ -294,6 +299,3 @@ def main():
                                     error_handler=register_app_error_cb)
 
     mainloop.run()
-
-if __name__ == '__main__':
-    main()

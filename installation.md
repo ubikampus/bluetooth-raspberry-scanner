@@ -80,10 +80,9 @@ In the new shell:
 
 ### GATT server
 
-`cd webbluetooth`
+Install python dependencies: `python3 -m pip install --user
+webbluetooth/requirements.txt`
 
-Install python dependencies: `python3 -m pip install --user requirements.txt`
-
-Start the server: `python3 echo_gatt_server.py`
+Start the server: `python3 -m webbluetooth`
 
 Server should be now ready to accept new web bluetooth connections.

@@ -7,3 +7,7 @@ Made for Raspberry Pi 3 mini computers to receive beacon bluetooth signals and s
 
 ### Requirements:
 * Node 8.15.1 (doesn’t work with newer versions)
+
+### Web bluetooth server
+
+Run unit tests by `python3 -m unittest discover`
