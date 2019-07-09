@@ -10,12 +10,19 @@ class MyDiscoverer(bluetooth.DeviceDiscoverer):
         self.done = False
 
     def device_discovered(self, address, device_class, rssi, name):
-        id = name
         volume = rssi
-        message = "name: {}, rssi: {}".format(id,volume)
-        client.publish("ohtu/test",message)
-       # print("%s - %s - %s" % (address, name, str(rssi)))
-        print("message published to broker: ",message)
+        macAddr = address
+        message = {
+            'beaconId':macAddr,
+            'raspId':4,
+            'rssi':volume,
+            }
+
+        with open('message.json', 'w') as f:
+            json.dump(message, f)
+        mess = open('message.json', 'r').read()
+        client.publish("ohtu/test2",mess)
+        print("message published to broker: ",mess)
 
     def inquiry_complete(self):
         self.done = True
@@ -30,23 +37,17 @@ class MyDiscoverer(bluetooth.DeviceDiscoverer):
             print("Not connected: ", rc)
 
 broker = "iot.ubikampus.net"
-
 global client
-client = mqtt.Client("P1") #create new instance
+client = mqtt.Client("P1")
+print("connecting: ",broker)
+client.connect(broker)
+print("connected!")
+
 #client.on_connect = on_connect
 #client.on_log = on_log
 #client.on_message = on_message
-
-
-print("connecting: ",broker)
-client.connect(broker) #connect to broker
-
-client.loop_start()
-time.sleep(2)
-client.loop_stop()
-
-#client.disconnect()
-#print("disconnected")
+#client.loop_start()
+#time.sleep(1)
 
 d = MyDiscoverer()
 d.find_devices(lookup_names = True)
@@ -61,4 +62,8 @@ while True:
 
     if d.done: break
 
+client.loop_stop()
+
+#client.disconnect()
+#print("disconnected")
 
