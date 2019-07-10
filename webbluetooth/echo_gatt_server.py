@@ -51,8 +51,6 @@ class Application(dbus.service.Object):
         self.services = []
         dbus.service.Object.__init__(self, bus, self.path)
         self.add_service(HeartRateService(bus, 0))
-        self.add_service(BatteryService(bus, 1))
-        self.add_service(TestService(bus, 2))
 
     def get_path(self):
         return dbus.ObjectPath(self.path)
@@ -366,83 +364,6 @@ class HeartRateControlPointChrc(Characteristic):
         self.service.energy_expended = 0
 
 
-class BatteryService(Service):
-    """
-    Fake Battery service that emulates a draining battery.
-
-    """
-    BATTERY_UUID = '180f'
-
-    def __init__(self, bus, index):
-        Service.__init__(self, bus, index, self.BATTERY_UUID, True)
-        self.add_characteristic(BatteryLevelCharacteristic(bus, 0, self))
-
-
-class BatteryLevelCharacteristic(Characteristic):
-    """
-    Fake Battery Level characteristic. The battery level is drained by 2 points
-    every 5 seconds.
-
-    """
-    BATTERY_LVL_UUID = '2a19'
-
-    def __init__(self, bus, index, service):
-        Characteristic.__init__(
-                self, bus, index,
-                self.BATTERY_LVL_UUID,
-                ['read', 'notify'],
-                service)
-        self.notifying = False
-        self.battery_lvl = 100
-        GObject.timeout_add(5000, self.drain_battery)
-
-    def notify_battery_level(self):
-        if not self.notifying:
-            return
-        self.PropertiesChanged(
-                GATT_CHRC_IFACE,
-                { 'Value': [dbus.Byte(self.battery_lvl)] }, [])
-
-    def drain_battery(self):
-        if not self.notifying:
-            return True
-        if self.battery_lvl > 0:
-            self.battery_lvl -= 2
-            if self.battery_lvl < 0:
-                self.battery_lvl = 0
-        print('Battery Level drained: ' + repr(self.battery_lvl))
-        self.notify_battery_level()
-        return True
-
-    def ReadValue(self, options):
-        print('Battery Level read: ' + repr(self.battery_lvl))
-        return [dbus.Byte(self.battery_lvl)]
-
-    def StartNotify(self):
-        if self.notifying:
-            print('Already notifying, nothing to do')
-            return
-
-        self.notifying = True
-        self.notify_battery_level()
-
-    def StopNotify(self):
-        if not self.notifying:
-            print('Not notifying, nothing to do')
-            return
-
-        self.notifying = False
-
-
-class TestService(Service):
-    """
-    Dummy test service that provides characteristics and descriptors that
-    exercise various API functionality.
-
-    """
-    TEST_SVC_UUID = '12345678-1234-5678-1234-56789abcdef0'
-
-    def __init__(self, bus, index):
         Service.__init__(self, bus, index, self.TEST_SVC_UUID, True)
         self.add_characteristic(TestCharacteristic(bus, 0, self))
         self.add_characteristic(TestEncryptCharacteristic(bus, 1, self))
@@ -521,97 +442,6 @@ class CharacteristicUserDescriptionDescriptor(Descriptor):
             raise NotPermittedException()
         self.value = value
 
-class TestEncryptCharacteristic(Characteristic):
-    """
-    Dummy test characteristic requiring encryption.
-
-    """
-    TEST_CHRC_UUID = '12345678-1234-5678-1234-56789abcdef3'
-
-    def __init__(self, bus, index, service):
-        Characteristic.__init__(
-                self, bus, index,
-                self.TEST_CHRC_UUID,
-                ['encrypt-read', 'encrypt-write'],
-                service)
-        self.value = []
-        self.add_descriptor(TestEncryptDescriptor(bus, 2, self))
-        self.add_descriptor(
-                CharacteristicUserDescriptionDescriptor(bus, 3, self))
-
-    def ReadValue(self, options):
-        print('TestEncryptCharacteristic Read: ' + repr(self.value))
-        return self.value
-
-    def WriteValue(self, value, options):
-        print('TestEncryptCharacteristic Write: ' + repr(value))
-        self.value = value
-
-class TestEncryptDescriptor(Descriptor):
-    """
-    Dummy test descriptor requiring encryption. Returns a static value.
-
-    """
-    TEST_DESC_UUID = '12345678-1234-5678-1234-56789abcdef4'
-
-    def __init__(self, bus, index, characteristic):
-        Descriptor.__init__(
-                self, bus, index,
-                self.TEST_DESC_UUID,
-                ['encrypt-read', 'encrypt-write'],
-                characteristic)
-
-    def ReadValue(self, options):
-        return [
-                dbus.Byte('T'), dbus.Byte('e'), dbus.Byte('s'), dbus.Byte('t')
-        ]
-
-
-class TestSecureCharacteristic(Characteristic):
-    """
-    Dummy test characteristic requiring secure connection.
-
-    """
-    TEST_CHRC_UUID = '12345678-1234-5678-1234-56789abcdef5'
-
-    def __init__(self, bus, index, service):
-        Characteristic.__init__(
-                self, bus, index,
-                self.TEST_CHRC_UUID,
-                ['secure-read', 'secure-write'],
-                service)
-        self.value = []
-        self.add_descriptor(TestSecureDescriptor(bus, 2, self))
-        self.add_descriptor(
-                CharacteristicUserDescriptionDescriptor(bus, 3, self))
-
-    def ReadValue(self, options):
-        print('TestSecureCharacteristic Read: ' + repr(self.value))
-        return self.value
-
-    def WriteValue(self, value, options):
-        print('TestSecureCharacteristic Write: ' + repr(value))
-        self.value = value
-
-
-class TestSecureDescriptor(Descriptor):
-    """
-    Dummy test descriptor requiring secure connection. Returns a static value.
-
-    """
-    TEST_DESC_UUID = '12345678-1234-5678-1234-56789abcdef6'
-
-    def __init__(self, bus, index, characteristic):
-        Descriptor.__init__(
-                self, bus, index,
-                self.TEST_DESC_UUID,
-                ['secure-read', 'secure-write'],
-                characteristic)
-
-    def ReadValue(self, options):
-        return [
-                dbus.Byte('T'), dbus.Byte('e'), dbus.Byte('s'), dbus.Byte('t')
-        ]
 
 def register_app_cb():
     print('GATT application registered')
