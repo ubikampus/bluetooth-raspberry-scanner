@@ -13,6 +13,7 @@ except ImportError:
 import sys
 
 from random import randint
+from webbluetooth.bluetooth_hacks import current_bt_device
 
 mainloop = None
 
@@ -346,6 +347,8 @@ class HeartRateControlPointChrc(Characteristic):
                 self.HR_CTRL_PT_UUID,
                 ['write'],
                 service)
+        self.add_descriptor(
+                CharacteristicUserDescriptionDescriptor(bus, 1, self))
 
     def WriteValue(self, value, options):
         print('Heart Rate Control Point WriteValue called')
@@ -511,7 +514,7 @@ class CharacteristicUserDescriptionDescriptor(Descriptor):
                 characteristic)
 
     def ReadValue(self, options):
-        return self.value
+        return array.array('B', current_bt_device().encode())
 
     def WriteValue(self, value, options):
         if not self.writable:
