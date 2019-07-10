@@ -76,12 +76,14 @@ ExecStart=/usr/sbin/bluetoothd --experimental
 
 In the new shell:
 
-`> advertise on` (leave the shell open)
+`> advertise on` (leave the shell open!)
 
 ### GATT server
 
 Install python dependencies: `python3 -m pip install --user
 webbluetooth/requirements.txt`
+
+Install the server: `python3 -m pip install bluetooth-raspberry-scanner`
 
 Start the server: `python3 -m webbluetooth`
 
