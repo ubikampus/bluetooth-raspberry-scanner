@@ -80,11 +80,16 @@ In the new shell:
 
 ### GATT server
 
-Install python dependencies: `python3 -m pip install --user
-webbluetooth/requirements.txt`
+Install PyGObject dependency:
+https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-getting-started
 
 Install the server: `python3 -m pip install bluetooth-raspberry-scanner`
 
-Start the server: `python3 -m webbluetooth`
+Install the systemd service:
 
-Server should be now ready to accept new web bluetooth connections.
+1. copy webbluetooth.service to /etc/systemd/system
+1. `$ sudo systemctl daemon-reload`
+1. `$ sudo systemctl enable webbluetooth`
+1. `$ sudo systemctl start webbluetooth`
+
+Server should now be ready to accept new web bluetooth connections.
