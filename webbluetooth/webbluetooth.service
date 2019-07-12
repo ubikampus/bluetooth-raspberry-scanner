@@ -1,0 +1,11 @@
+[Unit]
+Description=Web bluetooth GATT server
+After=network.target
+
+[Service]
+User=pi
+Restart=always
+ExecStart=/usr/bin/python3 -m webbluetooth
+
+[Install]
+WantedBy=multi-user.target
