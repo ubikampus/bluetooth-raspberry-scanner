@@ -59,6 +59,8 @@ If you have already setup your raspberry's wifi and ssh, you can skip this
 
 ## Web bluetooth GATT server setup
 
+NOTE: Only tested with python 3.5 and 3.6
+
 ### Bluetoothd
 
 Configure bluetoothd to run with `--experimental` flag,
