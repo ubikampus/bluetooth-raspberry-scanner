@@ -16,6 +16,7 @@ class MyDiscoverer(bluetooth.DeviceDiscoverer):
             'beaconId':macAddr,
             'raspId':4,
             'rssi':volume,
+            'name': name.decode('utf8'),
             }
 
         with open('message.json', 'w') as f:
@@ -49,21 +50,19 @@ print("connected!")
 #client.loop_start()
 #time.sleep(1)
 
-d = MyDiscoverer()
-d.find_devices(lookup_names = True)
-
-readfiles = [ d, ]
-
 while True:
-    rfds = select.select( readfiles, [], [] )[0]
+    d = MyDiscoverer()
+    d.find_devices(lookup_names = True)
 
-    if d in rfds:
-        d.process_event()
+    readfiles = [ d, ]
 
-    if d.done: break
+    while True:
+        rfds = select.select( readfiles, [], [] )[0]
 
-client.loop_stop()
+        if d in rfds:
+            d.process_event()
 
-#client.disconnect()
-#print("disconnected")
+        if d.done:
+            break
 
+# client.loop_stop()
