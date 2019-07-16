@@ -2,13 +2,5 @@
 
 Based on [pybluez example](https://github.com/pybluez/pybluez/blob/master/examples/simple/asynchronous-inquiry.py)
 
-Make sure that you have all required dependencies
 
-```
-sudo apt-get install bluetooth libbluetooth-dev
-sudo python3 -m pip install pybluez
-```
-Run:
-```
-python3 pybluez.py 
-```
+### See installation.md for instructions.

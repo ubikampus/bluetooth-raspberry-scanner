@@ -36,7 +36,9 @@ In the new shell:
 
 `advertise on` (leave the shell open!)
 
-### 4. Python dependencies
+### 4. Python native dependencies
+
+`sudo apt-get install bluetooth libbluetooth-dev`
 
 Install PyGObject dependency:
 https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-getting-started
