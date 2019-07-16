@@ -1,68 +1,71 @@
-import bluetooth
-import select
-import paho.mqtt.client as mqtt
-import time
 import json
+import select
+
+import paho.mqtt.client as mqtt
+import bluetooth
+
+MQTT_URL = "iot.ubikampus.net"
+MQTT_PUB_TOPIC = "ohtu/test2"
+
 
 class MyDiscoverer(bluetooth.DeviceDiscoverer):
+    def __init__(self, mqtt_client):
+        super().__init__()
+        self.mqtt_client = mqtt_client
 
     def pre_inquiry(self):
         self.done = False
 
     def device_discovered(self, address, device_class, rssi, name):
-        volume = rssi
-        macAddr = address
         message = {
-            'beaconId':macAddr,
-            'raspId':4,
-            'rssi':volume,
-            'name': name.decode('utf8'),
-            }
+            "beaconId": address,
+            "raspId": 4,
+            "rssi": rssi,
+            "name": name.decode("utf8"),
+        }
 
-        with open('message.json', 'w') as f:
-            json.dump(message, f)
-        mess = open('message.json', 'r').read()
-        client.publish("ohtu/test2",mess)
-        print("message published to broker: ",mess)
+        self.mqtt_client.publish("ohtu/test2", json.dumps(message))
+        print("message published to broker: ", message)
 
     def inquiry_complete(self):
         self.done = True
 
-    def on_log(client, userdata, level, buf):
-        print("log: ",buf)
 
-    def on_connect(client, userdata, flags, rc):
-        if rc==0:
-            print("connected!")
-        else:
-            print("Not connected: ", rc)
+def on_log(client, userdata, level, buf):
+    print("log: ", buf)
 
-broker = "iot.ubikampus.net"
-global client
-client = mqtt.Client("P1")
-print("connecting: ",broker)
-client.connect(broker)
-print("connected!")
 
-#client.on_connect = on_connect
-#client.on_log = on_log
-#client.on_message = on_message
-#client.loop_start()
-#time.sleep(1)
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("connected to mqtt")
+    else:
+        raise RuntimeError("failed to connect, return code {}".format(rc))
 
-while True:
-    d = MyDiscoverer()
-    d.find_devices(lookup_names = True)
 
-    readfiles = [ d, ]
+def run():
+    client = mqtt.Client("P1")
+    client.on_connect = on_connect
+    client.on_log = on_log
+
+    print("connecting: ", MQTT_URL)
+    client.connect(MQTT_URL)
+    print("connected!")
 
     while True:
-        rfds = select.select( readfiles, [], [] )[0]
+        d = MyDiscoverer(client)
+        d.find_devices(lookup_names=True)
 
-        if d in rfds:
-            d.process_event()
+        readfiles = [d, ]
 
-        if d.done:
-            break
+        while True:
+            rfds = select.select(readfiles, [], [])[0]
 
-# client.loop_stop()
+            if d in rfds:
+                d.process_event()
+
+            if d.done:
+                break
+
+
+if __name__ == "__main__":
+    run()
