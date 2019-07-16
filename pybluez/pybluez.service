@@ -1,12 +1,15 @@
 [Unit]
-Description=Web bluetooth GATT server
+Description=Ubikampus bluetooth scanner
 After=network.target
 
 [Service]
 User=pi
 Restart=always
-ExecStart=/usr/bin/python3 -m webbluetooth
+ExecStart=/usr/bin/python3 -m pybluez
 Environment=PYTHONUNBUFFERED=true
+
+Environment=MQTT_URL=
+Environment=RASPBERRY_ID=
 
 [Install]
 WantedBy=multi-user.target
