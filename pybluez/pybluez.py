@@ -5,13 +5,12 @@ from os import environ
 import paho.mqtt.client as mqtt
 import bluetooth
 
-MQTT_PUB_TOPIC = "ohtu/test2"
-
 
 class MyDiscoverer(bluetooth.DeviceDiscoverer):
-    def __init__(self, mqtt_client, raspberry_id):
+    def __init__(self, mqtt_client, mqtt_topic, raspberry_id):
         super().__init__()
         self.mqtt_client = mqtt_client
+        self.mqtt_topic = mqtt_topic
         self.raspberry_id = raspberry_id
 
     def pre_inquiry(self):
@@ -25,7 +24,7 @@ class MyDiscoverer(bluetooth.DeviceDiscoverer):
             "name": name.decode("utf8"),
         }
 
-        self.mqtt_client.publish(MQTT_PUB_TOPIC, json.dumps(message))
+        self.mqtt_client.publish(self.mqtt_topic, json.dumps(message))
         print("message published to broker: ", message)
 
     def inquiry_complete(self):
@@ -44,7 +43,7 @@ def on_connect(client, userdata, flags, rc):
 
 
 def validate_environ(environ):
-    for key in ("MQTT_URL", "RASPBERRY_ID"):
+    for key in ("MQTT_URL", "RASPBERRY_ID", "MQTT_PUB_TOPIC"):
         if not environ.get(key):
             raise RuntimeError(
                 'env var "{}" is missing, see installation.md'.format(key)
@@ -62,7 +61,12 @@ def run():
     print("connected!")
 
     while True:
-        d = MyDiscoverer(client, environ["RASPBERRY_ID"])
+        d = MyDiscoverer(
+            client,
+            environ["MQTT_PUB_TOPIC"],
+            environ["RASPBERRY_ID"],
+        )
+
         d.find_devices(lookup_names=True)
 
         readfiles = [d, ]

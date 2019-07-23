@@ -10,6 +10,7 @@ Environment=PYTHONUNBUFFERED=true
 
 Environment=MQTT_URL=
 Environment=RASPBERRY_ID=
+Environment=MQTT_PUB_TOPIC=
 
 [Install]
 WantedBy=multi-user.target

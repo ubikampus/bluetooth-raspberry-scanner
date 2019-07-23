@@ -54,7 +54,7 @@ running `python3 --version`.
 ### 2. Install the package
 - `python3 -m pip install --user --upgrade .`
 
-Configure MQTT_URL (e.g. mqtt.example.com) and RASPBERRY_ID in
+Configure MQTT_URL (e.g. mqtt.example.com), RASPBERRY_ID and MQTT_PUB_TOPIC in
 pybluez/pybluez.service file. Copy both /pybluez/pybluez.service and
 /webbluetooth/webbluetooth.service files to raspberry pi's /etc/systemd/system
 directory. Run `sudo systemctl daemon-reload`
