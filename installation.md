@@ -17,51 +17,7 @@ If you have already setup your raspberry's wifi and ssh, you can skip this
   - The change will come to effect after you restart ssh: `service ssh restart`
   - If you don't, at least change the password
 
-
-### 3. Install Node version manager and Node
-  - Install nvm: `wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash`
-  - Use nvm to install Node 8: `nvm install 8`
-  - Set Node 8 as default version: `nvm alias default 8`
-  - Change root's Node version to Node 8:
-  ```
-    n=$(which node); \
-    n=${n%/bin/node}; \
-    chmod -R 755 $n/bin/*; \
-    sudo cp -r $n/{bin,lib,share} /usr/local
- ```
- - Verify that both `node -v` and `sudo node -v` report version 8
-
- ## Installing the application
-
- ### 1. Clone the scanner project with git
- - `git clone https://github.com/ubikampus/bluetooth-raspberry-scanner.git`
-
- ### 2. Create .env file in project root directory
- The env file is used to configure enviromental variables. It needs two variables:
- - `mqttUrl=<url>` and `raspId=<unique_name>`
- - mqttUrl defines the address of the mqtt broker
- - raspId is used to identify raspberries in your system. It must be unique
- - Example:
- ```
- mqttUrl=iot.myserver.net
- raspId=rasp-1
- ```
-
- ### 3. Run the scanner
- (do these in project root folder)
- - Install dependencies:
- `npm install`
- - run program
- `sudo node src/app.js`
- (Bluetooth requires root access)
- - to run without sudo, give node permissions to Bluetooth
- ```sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)```
-
-## Web bluetooth GATT server setup
-
-NOTE: Only tested with python 3.5 and 3.6
-
-### Bluetoothd
+### 3 Set up bluetoothd
 
 Configure bluetoothd to run with `--experimental` flag,
 `sudo systemctl edit bluetooth`, add section:
@@ -72,26 +28,43 @@ ExecStart=
 ExecStart=/usr/sbin/bluetoothd --experimental
 ```
 
-`sudo systemctl reload bluetooth`
+Run `sudo systemctl reload bluetooth`
 
-`bluetoothctl`
+Run `bluetoothctl`
 
 In the new shell:
 
-`> advertise on` (leave the shell open!)
+`advertise on` (leave the shell open!)
 
-### GATT server
+### 4. Python native dependencies
+
+`sudo apt-get install bluetooth libbluetooth-dev`
 
 Install PyGObject dependency:
 https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-getting-started
 
-Install the server: `python3 -m pip install bluetooth-raspberry-scanner`
+The project is tested on python 3.5 and python 3.6, verify python version by
+running `python3 --version`.
 
-Install the systemd service:
+## Installing the application
 
-1. copy webbluetooth.service to /etc/systemd/system
-1. `$ sudo systemctl daemon-reload`
-1. `$ sudo systemctl enable webbluetooth`
-1. `$ sudo systemctl start webbluetooth`
+### 1. Clone the scanner project with git
+- `git clone https://github.com/ubikampus/bluetooth-raspberry-scanner.git`
 
-Server should now be ready to accept new web bluetooth connections.
+### 2. Install the package
+- `python3 -m pip install --user --upgrade .`
+
+Configure MQTT_URL (e.g. mqtt.example.com), RASPBERRY_ID and MQTT_PUB_TOPIC in
+pybluez/pybluez.service file. Copy both /pybluez/pybluez.service and
+/webbluetooth/webbluetooth.service files to raspberry pi's /etc/systemd/system
+directory. Run `sudo systemctl daemon-reload`
+
+### 3. Start the scanner and web bluetooth server
+
+1. sudo systemctl enable pybluez
+1. sudo systemctl start pybluez
+1. sudo systemctl enable webbluetooth
+1. sudo systemctl start webbluetooth
+
+Verify service statuses with `systemctl status pybluez` or `systemctl status
+webbluetooth`

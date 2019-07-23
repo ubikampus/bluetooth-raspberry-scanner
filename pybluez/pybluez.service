@@ -1,0 +1,16 @@
+[Unit]
+Description=Ubikampus bluetooth scanner
+After=network.target
+
+[Service]
+User=pi
+Restart=always
+ExecStart=/usr/bin/python3 -m pybluez
+Environment=PYTHONUNBUFFERED=true
+
+Environment=MQTT_URL=
+Environment=RASPBERRY_ID=
+Environment=MQTT_PUB_TOPIC=
+
+[Install]
+WantedBy=multi-user.target
