@@ -6,7 +6,7 @@ import paho.mqtt.client as mqtt
 import bluetooth
 
 
-class MyDiscoverer(bluetooth.DeviceDiscoverer):
+class BluetoothDiscoverer(bluetooth.DeviceDiscoverer):
     def __init__(self, mqtt_client, mqtt_topic, raspberry_id):
         super().__init__()
         self.mqtt_client = mqtt_client
@@ -61,23 +61,23 @@ def run():
     print("connected!")
 
     while True:
-        d = MyDiscoverer(
+        discoverer = BluetoothDiscoverer(
             client,
             environ["MQTT_PUB_TOPIC"],
             environ["RASPBERRY_ID"],
         )
 
-        d.find_devices(lookup_names=True)
+        discoverer.find_devices(lookup_names=True)
 
-        readfiles = [d, ]
+        readfiles = [discoverer, ]
 
         while True:
             rfds = select.select(readfiles, [], [])[0]
 
-            if d in rfds:
-                d.process_event()
+            if discoverer in rfds:
+                discoverer.process_event()
 
-            if d.done:
+            if discoverer.done:
                 break
 
 
