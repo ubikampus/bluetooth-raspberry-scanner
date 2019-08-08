@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="36dp"
             android:layout_marginTop="72dp"
-            android:text="turn bt on"
+            android:text="@string/turn_bt_on"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="28dp"
-            android:text="turn bt off"
+            android:text="@string/turn_bt_off"
             app:layout_constraintBaseline_toBaselineOf="@+id/bt_on"
             app:layout_constraintStart_toEndOf="@+id/bt_on" />
 
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="20dp"
-            android:text="start scan"
+            android:text="@string/start_scan"
             app:layout_constraintStart_toStartOf="@+id/results"
             app:layout_constraintTop_toBottomOf="@+id/bt_on" />
 
@@ -44,7 +44,7 @@
             android:id="@+id/stopScanButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="stop scan"
+            android:text="@string/stop_scan"
             app:layout_constraintBottom_toTopOf="@+id/results"
             app:layout_constraintStart_toStartOf="@+id/bt_off" />
 
@@ -55,7 +55,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="46dp"
-            android:text="results"
+            android:text="@string/results"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

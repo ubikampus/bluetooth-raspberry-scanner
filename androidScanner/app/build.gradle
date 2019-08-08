@@ -22,9 +22,8 @@ android {
 
 repositories {
     maven {
-//        url "https://repo.eclipse.org/content/repositories/paho-releases/"
         url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-//        url 'https://jitpack.io'
+
     }
 }
 
@@ -32,9 +31,6 @@ dependencies {
 
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-
-    /*implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.0.2'*/
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
