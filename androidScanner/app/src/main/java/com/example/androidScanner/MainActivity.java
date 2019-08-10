@@ -25,6 +25,13 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
+import com.neovisionaries.bluetooth.ble.advertising.ADPayloadParser;
+import com.neovisionaries.bluetooth.ble.advertising.ADStructure;
+import com.neovisionaries.bluetooth.ble.advertising.EddystoneUID;
+import com.neovisionaries.bluetooth.ble.advertising.IBeacon;
+
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     BluetoothManager mBluetoothManager;
@@ -114,12 +121,30 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             try {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("addr", result.getDevice().getAddress());
-                jsonObject.put("rssi", result.getRssi());
-                MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-                client.publish("ohtu/test", jsonMessage);
-                results.append("Data was sent to mqtt: " + jsonMessage.toString() +"\n");
+                List<ADStructure> structures = ADPayloadParser.getInstance().parse(result.getScanRecord().getBytes());
+                for (int i = 0; i < structures.size(); i++) {       //make sure that signal comes from iBeacon or EddystoneUID
+                    ADStructure str = structures.get(i);
+                    if (str instanceof EddystoneUID) {
+                        EddystoneUID eUID = (EddystoneUID)str;
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("addr", eUID.getNamespaceIdAsString());
+                        jsonObject.put("rssi", result.getRssi());
+                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                        client.publish("ohtu/test", jsonMessage);
+                        results.append("EddystoneUID was found and sent to mqtt" + "\n" +"Namespace ID (addr): " + eUID.getNamespaceIdAsString() +
+                                ", rssi: " + result.getRssi() + "\n" + "\n");
+                    }
+                    if (str instanceof IBeacon) {
+                        IBeacon iBeacon = (IBeacon)str;
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("addr", iBeacon.getUUID());
+                        jsonObject.put("rssi", result.getRssi());
+                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                        client.publish("ohtu/test", jsonMessage);
+                        results.append("iBeacon was found and sent to mqtt!" + "\n" +"UUID (addr): " + iBeacon.getUUID() +
+                                ", rssi: " + result.getRssi() + "\n" + "\n");
+                    }
+                }
                 final int scrollAmount = results.getLayout().getLineTop(results.getLineCount()) - results.getHeight(); //auto scroll
                 if (scrollAmount > 0)
                     results.scrollTo(0, scrollAmount);
