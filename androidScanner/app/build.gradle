@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
+    implementation 'com.neovisionaries:nv-bluetooth:1.8'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
