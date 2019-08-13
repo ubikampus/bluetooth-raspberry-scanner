@@ -129,23 +129,24 @@ public class MainActivity extends AppCompatActivity {
                         EddystoneUID eUID = (EddystoneUID)str;
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("addr", eUID.getNamespaceIdAsString());
-                        jsonObject.put("raspId", 5);
+                        jsonObject.put("observerId", 5);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
                         client.publish("ohtu/test", jsonMessage);
                         results.append("EddystoneUID was found and sent to mqtt (ohtu/test/observations)" + "\n" +"Namespace ID (beaconId): " + eUID.getNamespaceIdAsString() +
-                                ", raspId: " + 5 + ", rssi: " + result.getRssi() + "\n" + "\n");
+                                ", observerId: " + 5 + ", rssi: " + result.getRssi() + "\n" + "\n");
                     }
                     if (str instanceof IBeacon) {
                         IBeacon iBeacon = (IBeacon)str;
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("beaconId", iBeacon.getUUID());
-                        jsonObject.put("raspId", 5);
+                        jsonObject.put("observerId", 5);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
                         client.publish("ohtu/test/observations", jsonMessage);
                         results.append("iBeacon was found and sent to mqtt (ohtu/test/observations)" + "\n" +"UUID (beaconId): "
-                                + iBeacon.getUUID() + ", raspId: " + 5 + ", rssi: " + result.getRssi() + "\n" + "\n");
+                                + iBeacon.getUUID() + ", observerId: " + 5 + ", rssi: " + result.getRssi() + "\n" + "\n");
+
                     }
                 }
                 final int scrollAmount = results.getLayout().getLineTop(results.getLineCount()) - results.getHeight(); //auto scroll
