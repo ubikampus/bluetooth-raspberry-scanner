@@ -165,10 +165,18 @@ public class MainActivity extends AppCompatActivity {
             client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
+                final ScanSettings scanSettings = new ScanSettings.Builder()        
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)            // setup continuous scan
+                        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                        .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                        .setNumOfMatches(ScanSettings.MATCH_NUM_FEW_ADVERTISEMENT)
+                        .setReportDelay(0L)
+                        .build();
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mBluetoothScanner.startScan(leScanCallback);
+                        mBluetoothScanner.startScan(null, scanSettings, leScanCallback);
+//                        mBluetoothScanner.startScan(leScanCallback);
                     }
                 });
             } else {
