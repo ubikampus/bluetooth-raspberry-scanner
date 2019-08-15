@@ -14,33 +14,34 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
-import android.view.View;
-import android.view.Menu;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.json.JSONObject;
 
 import com.neovisionaries.bluetooth.ble.advertising.ADPayloadParser;
 import com.neovisionaries.bluetooth.ble.advertising.ADStructure;
 import com.neovisionaries.bluetooth.ble.advertising.EddystoneUID;
 import com.neovisionaries.bluetooth.ble.advertising.IBeacon;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONObject;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    BluetoothManager mBluetoothManager;
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothLeScanner mBluetoothScanner;
     TextView results;
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeScanner mBluetoothScanner;
     MqttClient client;
 
     @Override
@@ -48,57 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        results = (TextView) findViewById(R.id.results);
-        results.setMovementMethod(new ScrollingMovementMethod());
-
-        final Button btOnButton = (Button) findViewById(R.id.bt_on);    // turns bluetooth on
-        btOnButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (!mBluetoothAdapter.isEnabled()) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                } else {
-                    Context context = getApplicationContext();
-                    CharSequence text = "BLUETOOTH IS ALREADY TURNED ON";
-                    int duration = Toast.LENGTH_LONG;
-                    Toast toast = Toast.makeText(context, text, 15);
-                    toast.show();
-                }
-            }
-        });
-
-        final Button btOffButton = (Button) findViewById(R.id.bt_off);  //turns bluetooth off
-        btOffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                mBluetoothAdapter.disable();
-                Context context = getApplicationContext();
-                CharSequence text = "BLUETOOTH IS TURNED OFF";
-                int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, 15);
-                toast.show();
-            }
-        });
-
-        final Button startScanButton = (Button) findViewById(R.id.startScanButton);
-        startScanButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startScanning();
-            }
-        });
-
-        final Button stopScanButton = (Button) findViewById(R.id.stopScanButton);
-        stopScanButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                stopScanning();
-            }
-        });
-
-        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
-
-        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {              // bluetooth and permissions check
+        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent,REQUEST_ENABLE_BT);
         }
@@ -115,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
             });
             builder.show();
         }
+
+        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
+
+        results = findViewById(R.id.results);
 
     }
 
@@ -162,14 +119,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void startScanning() {
+    public void startScanning(View v) {
         results.setText("");
-
         try {
+
             client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
-                final ScanSettings scanSettings = new ScanSettings.Builder()        
+                final ScanSettings scanSettings = new ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)            // setup continuous scan
                         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
                         .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
@@ -179,19 +136,12 @@ public class MainActivity extends AppCompatActivity {
 
                 mBluetoothScanner.startScan(null, scanSettings, leScanCallback);
 
-                /*AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBluetoothScanner.startScan(null, scanSettings, leScanCallback);
-//                        mBluetoothScanner.startScan(leScanCallback);
-                    }
-                });*/
             } else {
                 Context context = getApplicationContext();
                 CharSequence text = "Connection to mqtt failed. Scanning was not started. Make sure that you are in UbiKampus network.";
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, 15);
-                toast.show();
+                Toast mToast = Toast.makeText(context, text, 15);
+                mToast.show();
             }
         } catch (Exception ex) {
             Context context = getApplicationContext();
@@ -201,11 +151,11 @@ public class MainActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(context, text, 15);
             toast.show();
         }
-
-
     }
 
-    public void stopScanning() {
+
+
+    public void stopScanning(View v) {
         results.append("Scanning stopped");
         AsyncTask.execute(new Runnable() {
             @Override
@@ -215,17 +165,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void startService(View v) {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        serviceIntent.putExtra("inputExtra", "Beacon scanner is running");
+        startService(serviceIntent);
+
+    }
+
+    public void stopService(View v) {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        stopService(serviceIntent);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_COARSE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    System.out.println("coarse location permission granted");
+                System.out.println("coarse location permission granted");
             } else {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Functionality limited");
@@ -242,4 +198,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

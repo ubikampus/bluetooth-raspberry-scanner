@@ -6,4 +6,8 @@
     <string name="start_scan">start scan</string>
     <string name="stop_scan">stop scan</string>
     <string name="results">results</string>
+    <string name="start_foreground_service">start_foreground_service</string>
+    <string name="stop_foreground_service">stop_foreground_service</string>
+    <string name="start_scanning">start_scanning</string>
+    <string name="stop_scanning">stop_scanning</string>
 </resources>
