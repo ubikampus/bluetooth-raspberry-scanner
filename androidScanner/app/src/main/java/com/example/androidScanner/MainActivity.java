@@ -23,6 +23,7 @@ import com.neovisionaries.bluetooth.ble.advertising.IBeacon;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
 
         results = findViewById(R.id.results);
 
+        Button startFGServiceButton = findViewById(R.id.startServiceButton);
+        startFGServiceButton.performClick();
+        Button startScanButton = findViewById(R.id.startScanButton);
+        startScanButton.performClick();
+
+        moveTaskToBack(true);   // hide app screen
     }
 
     private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         jsonObject.put("observerId", 5);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-                        client.publish("ohtu/test", jsonMessage);
+                        client.publish("ohtu/test/observations", jsonMessage);
                         results.append("EddystoneUID was found and sent to mqtt (ohtu/test/observations)" + "\n" +"Namespace ID (beaconId): " + eUID.getNamespaceIdAsString() +
                                 ", observerId: " + 5 + ", rssi: " + result.getRssi() + "\n" + "\n");
                     }
@@ -188,16 +195,12 @@ public class MainActivity extends AppCompatActivity {
                 builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
                 builder.setPositiveButton(android.R.string.ok, null);
                 builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                     }
-
                 });
                 builder.show();
             }
         }
     }
-
-
 }

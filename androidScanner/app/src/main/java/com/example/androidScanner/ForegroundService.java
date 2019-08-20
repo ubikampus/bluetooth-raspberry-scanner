@@ -24,7 +24,7 @@ public class ForegroundService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent,0);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Example service")
+                .setContentTitle("Beacon scanner")
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_android)
                 .setContentIntent(pendingIntent)
@@ -32,7 +32,6 @@ public class ForegroundService extends Service {
         startForeground(1, notification);
         return START_NOT_STICKY;
     }
-
 
     @Override
     public void onCreate() {
