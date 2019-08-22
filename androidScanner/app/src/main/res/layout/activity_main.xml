@@ -9,19 +9,14 @@
     android:gravity="center"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/startServiceButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="startService"
-        android:text="@string/start_foreground_service" />
 
     <Button
-        android:id="@+id/stopServiceButton"
+        android:id="@+id/settingsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="stopService"
-        android:text="@string/stop_foreground_service" />
+        android:onClick="openSettings"
+        android:text="@string/settings" />
+
     <Button
         android:id="@+id/startScanButton"
         android:layout_width="match_parent"

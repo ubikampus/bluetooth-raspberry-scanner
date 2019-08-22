@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/mqttServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="MQTT server:"
+        android:textSize="25sp"/>
+
+    <EditText
+        android:id="@+id/newMqttServer"
+        android:hint="new mqttServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="" />
+
+    <TextView
+        android:id="@+id/mqttTopic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="MQTT topic:"
+        android:textSize="25dp"/>
+
+    <EditText
+        android:id="@+id/newMqttTopic"
+        android:hint="new mqttTopic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/observerId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="observerId:"
+        android:textSize="25dp"/>
+
+    <EditText
+        android:id="@+id/newObserverId"
+        android:hint="new observerId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberSigned" />
+
+    <Button
+        android:id="@+id/saveChanges"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/saveChanges" />
+
+</LinearLayout>
