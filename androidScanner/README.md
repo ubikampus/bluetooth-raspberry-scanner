@@ -2,8 +2,9 @@
 
 #### Instructions
 
-You can install scanner on your tablet through ADB using command:  
+You can install [scanner](https://github.com/ubikampus/bluetooth-raspberry-scanner/blob/feature/androidScanner/androidScanner/scanner.apk) on your tablet through ADB using command:  
 ```adb install scanner.apk```  
+
 
 To configure the app use command:   
 ```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=brand\&observerId=66" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
