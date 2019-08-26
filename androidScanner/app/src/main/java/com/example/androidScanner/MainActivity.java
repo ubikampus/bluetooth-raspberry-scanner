@@ -7,97 +7,57 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
-import android.view.View;
-import android.view.Menu;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.json.JSONObject;
 
 import com.neovisionaries.bluetooth.ble.advertising.ADPayloadParser;
 import com.neovisionaries.bluetooth.ble.advertising.ADStructure;
 import com.neovisionaries.bluetooth.ble.advertising.EddystoneUID;
 import com.neovisionaries.bluetooth.ble.advertising.IBeacon;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONObject;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    BluetoothManager mBluetoothManager;
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothLeScanner mBluetoothScanner;
     TextView results;
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeScanner mBluetoothScanner;
     MqttClient client;
+    private Boolean scanningIsActive;
+
+    public static final String SHARED_PREFS = "shared_prefs";
+    public static final String MQTT_SERVER = "tcp://iot.ubikampus.net";  // default values
+    public static final String MQTT_TOPIC = "ohtu/test/observations";
+    public static final String OBSERVER_ID = "5";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        results = (TextView) findViewById(R.id.results);
-        results.setMovementMethod(new ScrollingMovementMethod());
-
-        final Button btOnButton = (Button) findViewById(R.id.bt_on);    // turns bluetooth on
-        btOnButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (!mBluetoothAdapter.isEnabled()) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                } else {
-                    Context context = getApplicationContext();
-                    CharSequence text = "BLUETOOTH IS ALREADY TURNED ON";
-                    int duration = Toast.LENGTH_LONG;
-                    Toast toast = Toast.makeText(context, text, 15);
-                    toast.show();
-                }
-            }
-        });
-
-        final Button btOffButton = (Button) findViewById(R.id.bt_off);  //turns bluetooth off
-        btOffButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                mBluetoothAdapter.disable();
-                Context context = getApplicationContext();
-                CharSequence text = "BLUETOOTH IS TURNED OFF";
-                int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, 15);
-                toast.show();
-            }
-        });
-
-        final Button startScanButton = (Button) findViewById(R.id.startScanButton);
-        startScanButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startScanning();
-            }
-        });
-
-        final Button stopScanButton = (Button) findViewById(R.id.stopScanButton);
-        stopScanButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                stopScanning();
-            }
-        });
-
-        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
-
-        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {              // bluetooth and permissions check
+        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent,REQUEST_ENABLE_BT);
         }
@@ -115,6 +75,19 @@ public class MainActivity extends AppCompatActivity {
             builder.show();
         }
 
+        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
+
+        results = findViewById(R.id.results);
+
+        /*Button startFGServiceButton = findViewById(R.id.startServiceButton);
+        startFGServiceButton.performClick();*/
+        Button startScanButton = findViewById(R.id.startScanButton);
+        startScanButton.performClick();
+        scanningIsActive = true;
+
+        moveTaskToBack(true);   // hide app screen
     }
 
     private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
@@ -126,23 +99,38 @@ public class MainActivity extends AppCompatActivity {
                     ADStructure str = structures.get(i);
                     if (str instanceof EddystoneUID) {
                         EddystoneUID eUID = (EddystoneUID)str;
+
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                        String topic = sharedPreferences.getString(MQTT_TOPIC,"ohtu/test/observations");
+                        int id = Integer.parseInt(sharedPreferences.getString(OBSERVER_ID,"5"));
+
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("addr", eUID.getNamespaceIdAsString());
+                        jsonObject.put("observerId", id);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-                        client.publish("ohtu/test", jsonMessage);
-                        results.append("EddystoneUID was found and sent to mqtt" + "\n" +"Namespace ID (addr): " + eUID.getNamespaceIdAsString() +
-                                ", rssi: " + result.getRssi() + "\n" + "\n");
+
+                        client.publish(topic, jsonMessage);
+                        results.append("EddystoneUID was found and sent to mqtt topic:"+ topic.toString() + "\n" +"Namespace ID (beaconId): "
+                                + eUID.getNamespaceIdAsString() + ", observerId: " + id + ", rssi: " + result.getRssi() + "\n" + "\n");
                     }
                     if (str instanceof IBeacon) {
                         IBeacon iBeacon = (IBeacon)str;
+
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                        String topic = sharedPreferences.getString(MQTT_TOPIC,"ohtu/test/observations");
+                        int id = Integer.parseInt(sharedPreferences.getString(OBSERVER_ID,"5"));
+
                         JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("addr", iBeacon.getUUID());
+                        jsonObject.put("beaconId", iBeacon.getUUID());
+                        jsonObject.put("observerId", id);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-                        client.publish("ohtu/test", jsonMessage);
-                        results.append("iBeacon was found and sent to mqtt!" + "\n" +"UUID (addr): " + iBeacon.getUUID() +
-                                ", rssi: " + result.getRssi() + "\n" + "\n");
+
+                        client.publish(topic, jsonMessage);
+                        results.append("iBeacon was found and sent to mqtt topic:"+ topic + "\n" +"UUID (beaconId): "
+                                + iBeacon.getUUID() + ", observerId: " + id + ", rssi: " + result.getRssi() + "\n" + "\n");
+
                     }
                 }
                 final int scrollAmount = results.getLayout().getLineTop(results.getLineCount()) - results.getHeight(); //auto scroll
@@ -158,25 +146,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void startScanning() {
+    public void startScanning(View v) {
+        startForegroundService(v);
         results.setText("");
-
         try {
             client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBluetoothScanner.startScan(leScanCallback);
-                    }
-                });
+                final ScanSettings scanSettings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)            // setup continuous scan
+                        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                        .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                        .setNumOfMatches(ScanSettings.MATCH_NUM_FEW_ADVERTISEMENT)
+                        .setReportDelay(0L)
+                        .build();
+
+                mBluetoothScanner.startScan(null, scanSettings, leScanCallback);
+                scanningIsActive = true;
             } else {
                 Context context = getApplicationContext();
                 CharSequence text = "Connection to mqtt failed. Scanning was not started. Make sure that you are in UbiKampus network.";
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, 15);
-                toast.show();
+                Toast mToast = Toast.makeText(context, text, 15);
+                mToast.show();
             }
         } catch (Exception ex) {
             Context context = getApplicationContext();
@@ -186,11 +178,11 @@ public class MainActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(context, text, 15);
             toast.show();
         }
-
-
     }
 
-    public void stopScanning() {
+
+
+    public void stopScanning(View v) {
         results.append("Scanning stopped");
         AsyncTask.execute(new Runnable() {
             @Override
@@ -198,30 +190,47 @@ public class MainActivity extends AppCompatActivity {
                 mBluetoothScanner.stopScan(leScanCallback);
             }
         });
+        stopForegroundService(v);
+        scanningIsActive = false;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void startForegroundService(View v) {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        serviceIntent.putExtra("inputExtra", "Beacon scanner is running");
+        startService(serviceIntent);
+
+    }
+
+    public void stopForegroundService(View v) {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        stopService(serviceIntent);
+    }
+
+    public void openSettings(View v) {
+        if (scanningIsActive) {
+            Toast toast = Toast.makeText(getApplicationContext(), "Settings cannot be changed while scanning. Please turn scan off", 15);
+            toast.show();
+        } else {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+        }
+
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_COARSE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    System.out.println("coarse location permission granted");
+                System.out.println("coarse location permission granted");
             } else {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Functionality limited");
                 builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
                 builder.setPositiveButton(android.R.string.ok, null);
                 builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                     }
-
                 });
                 builder.show();
             }
