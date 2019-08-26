@@ -150,9 +150,7 @@ public class MainActivity extends AppCompatActivity {
         startForegroundService(v);
         results.setText("");
         try {
-            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-            String serverURL = sharedPreferences.getString(MQTT_SERVER,"tcp://iot.ubikampus.net");
-            client = new MqttClient(serverURL, MqttClient.generateClientId(), new MemoryPersistence());
+            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
                 final ScanSettings scanSettings = new ScanSettings.Builder()
