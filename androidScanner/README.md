@@ -7,7 +7,7 @@ You can install [scanner](https://github.com/ubikampus/bluetooth-raspberry-scann
 
 
 To configure the app use command:   
-```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=brand\&observerId=66" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
+```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=beacons/observations\&observerId=66" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
   
 The config variables are topic and observerId. You can also configure the app from settings menu. 
 
