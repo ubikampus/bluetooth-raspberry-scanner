@@ -20,17 +20,14 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int stardId) {
         String input = intent.getStringExtra("InputExtra");
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent,0);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Beacon scanner")
+                .setContentTitle("Beacon scanner is on")
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_android)
-                .setContentIntent(pendingIntent)
                 .build();
-        startForeground(1, notification);
-        return START_NOT_STICKY;
+
+        startForeground(1, notification);   // usual service promoted to foreground
+        return START_REDELIVER_INTENT;
     }
 
     @Override

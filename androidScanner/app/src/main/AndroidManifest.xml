@@ -22,6 +22,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".RemoteConfigActivity"
+            android:label="title_activity_remote_config"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data
+                    android:host="change.scanner.settings"
+                    android:scheme="scanner" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity">
@@ -39,7 +50,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <service android:name=".ForegroundService" />
         <service android:name="org.eclipse.paho.android.service.MqttService" />
     </application>

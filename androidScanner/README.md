@@ -1,11 +1,18 @@
 ### Beacon scanner for Android 6
 
-Installation for Android tablet
+#### Instructions
 
-* Download project
-* Change server adress, topic and abserverId if needed
-* Build apk file (for instance: in Android Studio build button -> app/build/outputs/apk/debug/file.apk)
-* Connect PC and tablet 
-* Install .apk file on tablet:   ```adb install file.apk``` 
-* Start app:  ```adb shell am start -a android.intent.action.MAIN com.androidScanner/com.example.androidScanner.MainActivity``` 
-* Kill app:  ```adb shell am force-stop com.androidScanner```  
+You can install [scanner](https://github.com/ubikampus/bluetooth-raspberry-scanner/blob/feature/androidScanner/androidScanner/scanner.apk) on your tablet through ADB using command:  
+```adb install scanner.apk```  
+
+
+To configure the app use command:   
+```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=beacons/observations\&observerId=66" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
+  
+The config variables are topic and observerId. You can also configure the app from settings menu. 
+
+Start the app with command:  
+```adb shell am start -a android.intent.action.MAIN com.androidScanner/com.example.androidScanner.MainActivity```
+
+To kill the app use command: ```adb shell am force-stop com.androidScanner```
+
