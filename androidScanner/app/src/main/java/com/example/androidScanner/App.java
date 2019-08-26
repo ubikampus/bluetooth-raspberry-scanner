@@ -14,15 +14,5 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        createNotificationChannel();
     }
-
-    /*public void createNotificationChannel() {         // notificationChannels are used in Android 8+
-        NotificationChannel serviceChannel = new NotificationChannel(CHANNEL_ID, "example", NotificationManager.IMPORTANCE_LOW);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            serviceChannel = new NotificationChannel(CHANNEL_ID, "example", NotificationManager.IMPORTANCE_LOW);
-        }
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.createNotificationChannel(serviceChannel);
-    }*/
 }
