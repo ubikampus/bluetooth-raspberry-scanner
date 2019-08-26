@@ -14,22 +14,18 @@ import androidx.preference.PreferenceFragmentCompat;
 public class SettingsActivity extends AppCompatActivity {
 
     private Button saveButton;
-    private TextView currentMqttServer;
     private TextView currentMqttTopic;
     private TextView currentObserverId;
-    private EditText editMqttServer;
     private EditText editMqttTopic;
     private EditText editObserverId;
 
-    public static final String SHARED_PREFS = "shared_prefs";
-    public static final String MQTT_SERVER = "tcp://iot.ubikampus.net";
-    public static final String MQTT_TOPIC = "ohtu/test/observations";
-    public static final String OBSERVER_ID = "5";
+    final static String PREFERENCES_IDENTIFIER = "Preferences";
+    final static String PREFERENCES_MQTT_TOPIC = "";
+    final static String PREFERENCES_OBSERVER_ID = "0";
 
     private String newServerValue;
     private String newTopicValue;
     private String newObserverIdValue;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +37,8 @@ public class SettingsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        currentMqttServer = findViewById(R.id.mqttServer);
         currentMqttTopic = findViewById(R.id.mqttTopic);
         currentObserverId = findViewById(R.id.observerId);
-        editMqttServer = findViewById(R.id.newMqttServer);
         editMqttTopic = findViewById(R.id.newMqttTopic);
         editObserverId = findViewById(R.id.newObserverId);
         saveButton = findViewById(R.id.saveChanges);
@@ -59,29 +53,25 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void saveData() {
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (!editMqttServer.getText().toString().isEmpty()) {
-            editor.putString(MQTT_SERVER, editMqttServer.getText().toString());
-            currentMqttServer.setText(editMqttServer.getText().toString());
-        }
+
         if (!editMqttTopic.getText().toString().isEmpty()) {
-            editor.putString(MQTT_TOPIC, editMqttTopic.getText().toString());
+            editor.putString(PREFERENCES_MQTT_TOPIC, editMqttTopic.getText().toString());
             currentMqttTopic.setText(editMqttTopic.getText().toString());
         }
         if (!editObserverId.getText().toString().isEmpty()) {
-            editor.putString(OBSERVER_ID, editObserverId.getText().toString());
+            editor.putString(PREFERENCES_OBSERVER_ID, editObserverId.getText().toString());
             currentObserverId.setText(editObserverId.getText().toString());
         }
         editor.apply();
     }
 
     public void loadData() {
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        newServerValue = sharedPreferences.getString(MQTT_SERVER,"tcp://iot.ubikampus.net");
-        newTopicValue = sharedPreferences.getString(MQTT_TOPIC,"ohtu/test/observations");
-        newObserverIdValue = sharedPreferences.getString(OBSERVER_ID,"5");
-        currentMqttServer.setText(newServerValue);
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
+        newTopicValue = sharedPreferences.getString(PREFERENCES_MQTT_TOPIC,"ohtu/test/observations");
+        newObserverIdValue = sharedPreferences.getString(PREFERENCES_OBSERVER_ID,"0");
+
         currentMqttTopic.setText(newTopicValue);
         currentObserverId.setText(newObserverIdValue);
     }
