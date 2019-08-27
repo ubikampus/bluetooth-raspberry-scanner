@@ -14,6 +14,7 @@ public class RemoteConfigActivity extends AppCompatActivity {
 
     final static String TERMINAL_INPUT_MQTT_TOPIC = "topic";
     final static String TERMINAL_INPUT_OBSERVER_ID = "observerId";
+    final static String TERMINAL_INPUT_SERVER = "server";
 
     public static final String LOG_TAG = "RemoteConfigActivity";
 
@@ -41,6 +42,7 @@ public class RemoteConfigActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "Parameters are null");
             return;
         }
+        String newServer = data.getQueryParameter(TERMINAL_INPUT_SERVER);
         String newTopic = data.getQueryParameter(TERMINAL_INPUT_MQTT_TOPIC);
         String newObserverId = data.getQueryParameter(TERMINAL_INPUT_OBSERVER_ID);
         if (newTopic != null) {
@@ -48,6 +50,9 @@ public class RemoteConfigActivity extends AppCompatActivity {
         }
         if (newObserverId != null) {
             setObserverId(newObserverId);
+        }
+        if (newServer != null) {
+            setServer(newServer);
         }
         finish();
     }
@@ -58,6 +63,9 @@ public class RemoteConfigActivity extends AppCompatActivity {
 
     private void setObserverId(String observerId) {
         PreferenceManager.getInstance(this).setObserverId(observerId);
+    }
+    private void setServer(String server) {
+        PreferenceManager.getInstance(this).setServer(server);
     }
 
 

@@ -10,6 +10,7 @@ public class PreferenceManager {
     final static String PREFERENCES_IDENTIFIER = "Preferences";
     final static String PREFERENCES_MQTT_TOPIC = "";
     final static String PREFERENCES_OBSERVER_ID = "0";
+    final static String PREFERENCES_SERVER = "iot";
 
     private PreferenceManager(Context context) {
         preferences = context.getSharedPreferences(PREFERENCES_IDENTIFIER, Context.MODE_PRIVATE);
@@ -20,6 +21,12 @@ public class PreferenceManager {
             sharedInstance = new PreferenceManager(context);
         }
         return sharedInstance;
+    }
+
+    public void setServer(String server) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(PREFERENCES_SERVER, server);
+        editor.apply();
     }
 
     public void setTopic(String topic) {

@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     final static String PREFERENCES_IDENTIFIER = "Preferences";
 
     final static String PREFERENCES_MQTT_TOPIC = "";
+    final static String PREFERENCES_SERVER = "";
     final static String PREFERENCES_OBSERVER_ID = "0";
 
     @Override
@@ -148,7 +149,10 @@ public class MainActivity extends AppCompatActivity {
         startForegroundService(v);
         results.setText("");
         try {
-            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
+            SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
+            String server = preferences.getString(PREFERENCES_SERVER,"tcp://iot.ubikampus.net");
+            client = new MqttClient(server, MqttClient.generateClientId(), new MemoryPersistence());
+//            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
                 final ScanSettings scanSettings = new ScanSettings.Builder()
