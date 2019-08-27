@@ -10,7 +10,7 @@ Grant location permission to the scanner:
 
 
 To configure the app use command:   
-```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=beacons/observations\&observerId=66" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
+```adb shell am start -a android.intent.action.VIEW -d "scanner://change.scanner.settings?topic=beacons/observations\&observerId=66\&server=tcp://iot.ubikampus.net" com.androidScanner/com.example.androidScanner.RemoteConfigActivity``` 
   
 The config variables are topic and observerId. Do not change configuration while app is running. Kill application first and only then use the configuration command. You can also configure the app from settings menu.
 
