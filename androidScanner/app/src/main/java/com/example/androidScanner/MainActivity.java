@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     final static String PREFERENCES_IDENTIFIER = "Preferences";
 
     final static String PREFERENCES_MQTT_TOPIC = "";
-    final static String PREFERENCES_SERVER = "";
+    final static String PREFERENCES_SERVER = "iot";
     final static String PREFERENCES_OBSERVER_ID = "0";
 
     @Override
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
             String server = preferences.getString(PREFERENCES_SERVER,"tcp://iot.ubikampus.net");
-            String uri = "tcp://" + server;
+            String uri = "tcp://192.168.1.4";
             client = new MqttClient(uri, MqttClient.generateClientId(), new MemoryPersistence());
 //            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
