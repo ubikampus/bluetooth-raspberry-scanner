@@ -151,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
             String server = preferences.getString(PREFERENCES_SERVER,"tcp://iot.ubikampus.net");
-            client = new MqttClient(server, MqttClient.generateClientId(), new MemoryPersistence());
+            String uri = "tcp://" + server;
+            client = new MqttClient(uri, MqttClient.generateClientId(), new MemoryPersistence());
 //            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
             if (client.isConnected()) {
