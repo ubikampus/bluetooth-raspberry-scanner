@@ -2,7 +2,7 @@
 
 #### Instructions
 
-You can install [scanner](https://github.com/ubikampus/bluetooth-raspberry-scanner/blob/feature/androidScanner/androidScanner/scanner.apk) on your tablet through ADB using command:  
+You can install [scanner](https://github.com/ubikampus/bluetooth-raspberry-scanner/blob/feature/backgroundAndroidScanner/androidScanner/scanner.apk) on your tablet through ADB using command:  
 ```adb install -g scanner.apk```  
 
 To configure the app use command:   
