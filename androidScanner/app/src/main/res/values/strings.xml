@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">my11app</string>
+    <string name="app_name">scanner</string>
     <string name="action_settings">Settings</string>
     <string name="turn_bt_on">turn bt on</string>
     <string name="turn_bt_off">turn bt off</string>

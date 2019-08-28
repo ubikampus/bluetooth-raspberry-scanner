@@ -35,18 +35,10 @@ public class PreferenceManager {
         editor.apply();
     }
 
-    public String getTopic() {
-        return preferences.getString(PREFERENCES_MQTT_TOPIC, "ips/observations");
-    }
-
     public void setObserverId(String ObserverId) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(PREFERENCES_OBSERVER_ID, ObserverId);
         editor.apply();
-    }
-
-    public String getObserverId() {
-        return preferences.getString(PREFERENCES_OBSERVER_ID, "0");
     }
 
 }

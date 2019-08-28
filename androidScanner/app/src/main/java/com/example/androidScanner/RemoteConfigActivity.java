@@ -1,16 +1,15 @@
 package com.example.androidScanner;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
 
 import java.util.Set;
 
-public class RemoteConfigActivity extends AppCompatActivity {
+public class RemoteConfigActivity extends Activity {
 
     final static String TERMINAL_INPUT_MQTT_TOPIC = "topic";
     final static String TERMINAL_INPUT_OBSERVER_ID = "observerId";
@@ -23,12 +22,12 @@ public class RemoteConfigActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_remote_config);
+
         intent = getIntent();
         if (intent != null) {
             Uri data = intent.getData();
             if (data != null) {
-                System.err.println("Intent received");
+                System.err.println("Data received");
                 handleCommandLineSettings(data);
             }
         } else {
@@ -40,7 +39,7 @@ public class RemoteConfigActivity extends AppCompatActivity {
         Set<String> parameters = data.getQueryParameterNames();
         if (parameters == null || parameters.isEmpty()) {
             Log.d(LOG_TAG, "Parameters are null");
-            return;
+            finish();
         }
         String newServer = data.getQueryParameter(TERMINAL_INPUT_SERVER);
         String newTopic = data.getQueryParameter(TERMINAL_INPUT_MQTT_TOPIC);
