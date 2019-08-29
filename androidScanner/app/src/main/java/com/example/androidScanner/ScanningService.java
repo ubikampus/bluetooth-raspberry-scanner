@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 import com.neovisionaries.bluetooth.ble.advertising.ADPayloadParser;
 import com.neovisionaries.bluetooth.ble.advertising.ADStructure;
@@ -36,6 +37,9 @@ public class ScanningService extends Service {
     final static String PREFERENCES_SERVER = "iot";
     final static String PREFERENCES_OBSERVER_ID = "0";
 
+    private static final String TAG = "ScanningService";
+
+
     MqttClient client;
 
     @Override
@@ -47,6 +51,7 @@ public class ScanningService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int stardId) {
         String input = intent.getStringExtra("InputExtra");
+        Log.d(TAG,"ScanningService was started");
 
         /*mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
@@ -59,11 +64,13 @@ public class ScanningService extends Service {
     }
 
     public void startBroadcastingMessage() {
+        Log.d(TAG,"Broadcasting method was started");
         try {
-            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());   //192.168.1.4
+            client = new MqttClient("tcp://192.168.1.4", MqttClient.generateClientId(), new MemoryPersistence());   //192.168.1.4
             client.connect();
+            Log.d(TAG,"MqttClient is connected to tcp://192.168.1.4");
         } catch (Exception e) {
-            System.out.println(e);
+            Log.d(TAG,"Error while connecting mqttClient to tcp://192.168.1.4 " + e);
         }
 
         while (true) {
@@ -73,8 +80,9 @@ public class ScanningService extends Service {
                 MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
                 client.publish("test", jsonMessage);
                 Thread.sleep(1000);
+                Log.d(TAG,"message published to mqtt");
                 }  catch (Exception e) {
-                System.out.println(e);
+                Log.d(TAG,"message wasn't published to mqtt: " + e);
             }
         }
     }
