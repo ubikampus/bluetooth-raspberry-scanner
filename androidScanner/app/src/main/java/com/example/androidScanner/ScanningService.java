@@ -69,7 +69,7 @@ public class ScanningService extends Service {
 
                         SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
                         String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"ohtu/test/observations");
-                        int observerId = Integer.parseInt(preferences.getString(PREFERENCES_OBSERVER_ID,"0"));
+                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
 
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("addr", eUID.getNamespaceIdAsString());
@@ -84,7 +84,7 @@ public class ScanningService extends Service {
 
                         SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
                         String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"ohtu/test/observations");
-                        int observerId = Integer.parseInt(preferences.getString(PREFERENCES_OBSERVER_ID,"0"));
+                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"0");
 
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("beaconId", iBeacon.getUUID());
