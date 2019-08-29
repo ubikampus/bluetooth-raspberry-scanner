@@ -50,15 +50,15 @@ public class ScanningService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int stardId) {
-        String input = intent.getStringExtra("InputExtra");
+
         Log.d(TAG,"ScanningService was started");
 
-        /*mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
-        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();*/
+        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
- //       startScanning();
-        startBroadcastingMessage();
+        startScanning();
+ //       startBroadcastingMessage();
 
         return START_REDELIVER_INTENT;
     }
@@ -87,7 +87,7 @@ public class ScanningService extends Service {
         }
     }
 
-    /*private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
+    private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             try {
@@ -138,7 +138,7 @@ public class ScanningService extends Service {
     public void startScanning() {
         try {
             SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-            String ip = preferences.getString(PREFERENCES_SERVER,"iot.ubikampus.net");
+            String ip = preferences.getString(PREFERENCES_SERVER,"192.168.1.4");
             String server = "tcp://" + ip;
             client = new MqttClient(server, MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();
@@ -176,5 +176,5 @@ public class ScanningService extends Service {
                 mBluetoothScanner.stopScan(leScanCallback);
             }
         });
-    }*/
+    }
 }
