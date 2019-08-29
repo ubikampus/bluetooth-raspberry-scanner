@@ -48,16 +48,38 @@ public class ScanningService extends Service {
     public int onStartCommand(Intent intent, int flags, int stardId) {
         String input = intent.getStringExtra("InputExtra");
 
-        mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        /*mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
-        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();*/
 
-        startScanning();
+ //       startScanning();
+        startBroadcastingMessage();
 
         return START_REDELIVER_INTENT;
     }
 
-    private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
+    public void startBroadcastingMessage() {
+        try {
+            client = new MqttClient("tcp://iot.ubikampus.net", MqttClient.generateClientId(), new MemoryPersistence());   //192.168.1.4
+            client.connect();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        while (true) {
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("ScanningService", "ScanningService is working");
+                MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                client.publish("test", jsonMessage);
+                Thread.sleep(1000);
+                }  catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
+
+    /*private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             try {
@@ -146,5 +168,5 @@ public class ScanningService extends Service {
                 mBluetoothScanner.stopScan(leScanCallback);
             }
         });
-    }
+    }*/
 }
