@@ -84,19 +84,20 @@ public class ScanningService extends Service {
                         client.publish(topic, jsonMessage);
 
                     } else if (str instanceof IBeacon) {
+
                         IBeacon iBeacon = (IBeacon)str;
 
-                        SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
-                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
-
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("beaconId", iBeacon.getUUID());
-                        jsonObject.put("observerId", observerId);
-                        jsonObject.put("rssi", result.getRssi());
-                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-
-                        client.publish(topic, jsonMessage);
+                        if (!iBeacon.getUUID().equals("50765cb7-d9ea-4e21-99a4-fa879613a492") && !iBeacon.getUUID().equals("00177756-d59f-072b-2814-142f9b041005")) { // those are static iBeacons at Ubikampus (no need to track them)
+                            SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
+                            String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
+                            String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("beaconId", iBeacon.getUUID());
+                            jsonObject.put("observerId", observerId);
+                            jsonObject.put("rssi", result.getRssi());
+                            MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                            client.publish(topic, jsonMessage);
+                        }
                     }
                 }
             } catch (Exception ex) {
