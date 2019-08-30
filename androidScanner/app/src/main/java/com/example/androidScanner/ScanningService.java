@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 import com.neovisionaries.bluetooth.ble.advertising.ADPayloadParser;
 import com.neovisionaries.bluetooth.ble.advertising.ADStructure;
@@ -36,6 +37,8 @@ public class ScanningService extends Service {
     final static String PREFERENCES_SERVER = "iot";
     final static String PREFERENCES_OBSERVER_ID = "0";
 
+    private static final String TAG = "ScanningService";
+
     MqttClient client;
 
     @Override
@@ -46,7 +49,8 @@ public class ScanningService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int stardId) {
-        String input = intent.getStringExtra("InputExtra");
+
+        Log.d(TAG,"ScanningService was started");
 
         mBluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
@@ -68,11 +72,11 @@ public class ScanningService extends Service {
                         EddystoneUID eUID = (EddystoneUID)str;
 
                         SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"ohtu/test/observations");
-                        int observerId = Integer.parseInt(preferences.getString(PREFERENCES_OBSERVER_ID,"0"));
+                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
+                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
 
                         JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("addr", eUID.getNamespaceIdAsString());
+                        jsonObject.put("beaconId", eUID.getNamespaceIdAsString());
                         jsonObject.put("observerId", observerId);
                         jsonObject.put("rssi", result.getRssi());
                         MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
@@ -80,19 +84,20 @@ public class ScanningService extends Service {
                         client.publish(topic, jsonMessage);
 
                     } else if (str instanceof IBeacon) {
+
                         IBeacon iBeacon = (IBeacon)str;
 
-                        SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"ohtu/test/observations");
-                        int observerId = Integer.parseInt(preferences.getString(PREFERENCES_OBSERVER_ID,"0"));
-
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("beaconId", iBeacon.getUUID());
-                        jsonObject.put("observerId", observerId);
-                        jsonObject.put("rssi", result.getRssi());
-                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-
-                        client.publish(topic, jsonMessage);
+                        if (!iBeacon.getUUID().equals("50765cb7-d9ea-4e21-99a4-fa879613a492") && !iBeacon.getUUID().equals("00177756-d59f-072b-2814-142f9b041005")) { // those are static iBeacons at Ubikampus (no need to track them)
+                            SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
+                            String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
+                            String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("beaconId", iBeacon.getUUID());
+                            jsonObject.put("observerId", observerId);
+                            jsonObject.put("rssi", result.getRssi());
+                            MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                            client.publish(topic, jsonMessage);
+                        }
                     }
                 }
             } catch (Exception ex) {
@@ -108,7 +113,7 @@ public class ScanningService extends Service {
     public void startScanning() {
         try {
             SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-            String ip = preferences.getString(PREFERENCES_SERVER,"iot.ubikampus.net");
+            String ip = preferences.getString(PREFERENCES_SERVER,"192.168.1.4");
             String server = "tcp://" + ip;
             client = new MqttClient(server, MqttClient.generateClientId(), new MemoryPersistence());
             client.connect();

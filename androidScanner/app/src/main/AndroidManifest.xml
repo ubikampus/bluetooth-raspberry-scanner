@@ -48,6 +48,19 @@
             android:name=".ScanningService"
             android:enabled="true"
             android:exported="true"></service>
+
+        <service
+            android:name=".RemoteConfigService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <data
+                    android:host="change.scanner.settings"
+                    android:scheme="scanner" />
+            </intent-filter>
+        </service>
+
         <!--<service android:name=".ForegroundService" />-->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
