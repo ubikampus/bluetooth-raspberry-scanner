@@ -30,7 +30,7 @@ public class RemoteConfigService extends Service {
                 handleCommandLineSettings(data);
             }
         }
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void handleCommandLineSettings(Uri data) {
