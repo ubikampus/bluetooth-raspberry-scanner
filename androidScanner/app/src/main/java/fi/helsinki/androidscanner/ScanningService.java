@@ -67,43 +67,39 @@ public class ScanningService extends Service {
                 List<ADStructure> structures = ADPayloadParser.getInstance().parse(result.getScanRecord().getBytes());
                 for (int i = 0; i < structures.size(); i++) {
                     ADStructure str = structures.get(i);
+                    String beaconId = null;
+
                     if (str instanceof EddystoneUID) {
                         EddystoneUID eUID = (EddystoneUID)str;
-
-                        SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
-                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
-
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("beaconId", eUID.getNamespaceIdAsString());
-                        jsonObject.put("observerId", observerId);
-                        jsonObject.put("rssi", result.getRssi());
-                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-
-                        client.publish(topic, jsonMessage);
-
+                        beaconId = eUID.getNamespaceIdAsString();
                     } else if (str instanceof IBeacon) {
 
                         IBeacon iBeacon = (IBeacon)str;
 
                         if (!iBeacon.getUUID().equals("50765cb7-d9ea-4e21-99a4-fa879613a492") && !iBeacon.getUUID().equals("00177756-d59f-072b-2814-142f9b041005")) { // those are static iBeacons at Ubikampus (no need to track them)
-                            SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
-                            String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
-                            String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("beaconId", iBeacon.getUUID());
-                            jsonObject.put("observerId", observerId);
-                            jsonObject.put("rssi", result.getRssi());
-                            MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
-                            client.publish(topic, jsonMessage);
+                            beaconId = iBeacon.getUUID().toString();
                         }
+                    }
+
+                    if (beaconId != null) {
+                        SharedPreferences preferences = getSharedPreferences(PREFERENCES_IDENTIFIER, MODE_PRIVATE);
+                        String topic = preferences.getString(PREFERENCES_MQTT_TOPIC,"beacons/observations");
+                        String observerId = preferences.getString(PREFERENCES_OBSERVER_ID,"default");
+
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("beaconId", beaconId);
+                        jsonObject.put("observerId", observerId);
+                        jsonObject.put("rssi", result.getRssi());
+
+                        MqttMessage jsonMessage = new MqttMessage(jsonObject.toString().getBytes());
+                        client.publish(topic, jsonMessage);
                     }
                 }
             } catch (Exception ex) {
                 Context context = getApplicationContext();
                 CharSequence text = "Connection to mqtt succeeded, but error emerged while sending data to mqtt. Error: " + ex;
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context, text, 15);
+                Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
             }
         }
@@ -130,7 +126,7 @@ public class ScanningService extends Service {
                 Context context = getApplicationContext();
                 CharSequence text = "Connection to mqtt failed. Scanning was not started. Make sure that you are in UbiKampus network.";
                 int duration = Toast.LENGTH_LONG;
-                Toast mToast = Toast.makeText(context, text, 15);
+                Toast mToast = Toast.makeText(context, text, duration);
                 mToast.show();
             }
         } catch (Exception ex) {
@@ -138,7 +134,7 @@ public class ScanningService extends Service {
             CharSequence text = "Connection to mqtt failed. Error: " + ex +". " +
                     "Scanning was not started. Make sure that you are in UbiKampus network.";
             int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, 15);
+            Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
     }
