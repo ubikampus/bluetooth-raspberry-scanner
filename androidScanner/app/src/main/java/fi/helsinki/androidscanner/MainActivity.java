@@ -1,11 +1,8 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 

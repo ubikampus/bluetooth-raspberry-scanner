@@ -1,4 +1,4 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
 import org.junit.Test;
 

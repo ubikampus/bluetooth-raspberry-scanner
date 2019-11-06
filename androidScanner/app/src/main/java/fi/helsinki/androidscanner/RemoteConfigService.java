@@ -1,13 +1,10 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
 import android.app.Service;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Set;
 
@@ -30,7 +27,7 @@ public class RemoteConfigService extends Service {
                 handleCommandLineSettings(data);
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void handleCommandLineSettings(Uri data) {

@@ -1,4 +1,4 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,6 +1,5 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
-import android.app.Notification;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -58,7 +57,7 @@ public class ScanningService extends Service {
 
         startScanning();
 
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     private ScanCallback leScanCallback = new ScanCallback() {      //callback called upon received scan result

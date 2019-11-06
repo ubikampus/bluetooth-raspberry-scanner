@@ -1,9 +1,6 @@
-package com.example.androidScanner;
+package fi.helsinki.androidscanner;
 
 import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
 
 public class App extends Application {
     @Override
